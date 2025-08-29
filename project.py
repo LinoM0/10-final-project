@@ -4,13 +4,23 @@ class Ledger:
         self.expenses = expenses
 
     def add_person(self, name, balance=0):
-        person = Person(name, balance)
-        self.people[name] = person
+        name_clean = name.strip().lower()
+        if name_clean not in self.people.keys():
+            person = Person(name_clean, balance)
+            self.people[name_clean] = person
+        else:
+            print(f"Person {name} already exists!")
 
     def add_expense(self, payer, amount):
-        expense = Expense(payer, amount)
-        self.people[f"{payer}"].balance += amount
-        self.expenses.append(expense)
+        payer_clean = payer.strip().lower()
+        if payer_clean in self.people.keys():
+            expense = Expense(payer_clean, amount)
+            self.people[f"{payer_clean}"].balance += amount
+            self.expenses.append(expense)
+        else:
+            print(
+                f"Person {payer} does not yet exist. Create {payer} with .add_person() first before adding as a payer."
+            )
 
     def split(self):
         total = 0
@@ -51,7 +61,7 @@ class Person:
         self._balance = balance
 
     def __str__(self):
-        return f"{self.name} with balance: {self.balance}£"
+        return f"{self.name.capitalize()} with balance: {self.balance}£"
 
 
 class Expense:
@@ -80,17 +90,19 @@ class Expense:
         self._amount = amount
 
     def __str__(self):
-        return f"{self.amount}£ from {self.payer}"
+        return f"{self.amount}£ from {self.payer.capitalize()}"
 
 
 def main():
     ledger = Ledger()
+    ledger.add_person("LiNo")
     ledger.add_person("Lino")
-    ledger.add_person("Victoria")
-    ledger.add_person("Bella", -100)
+    ledger.add_person("victoria")
+    ledger.add_person("Bella")
     ledger.add_expense("Lino", 10)
     ledger.add_expense("Victoria", 20)
     ledger.add_expense("Lino", 5)
+    ledger.add_expense("Rolli", 5)
     print(ledger)
     ledger.split()
     print(ledger)
