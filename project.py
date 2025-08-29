@@ -10,6 +10,7 @@ def main():
     ledger.add_expense("Lino", 15.00, ["Lino", "Victoria"], "equal")
     ledger.add_expense("Lino", 25.00, ["Lino", "Bella"], "equal")
     ledger.add_expense("Rogek", 45.00, ["Lino", "Victoria", "Bella"], "equal")
+    ledger.add_expense("Lino", 10.00, ["Nicola", "Bella"], "equal")
     ledger.list_expenses()
     ledger.list_balances()
     ledger.balances()

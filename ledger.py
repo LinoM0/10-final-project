@@ -14,7 +14,6 @@ class Ledger:
         else:
             print(f"Person {name} already exists!")
 
-    # TODO automatically create person (payer and participants) if not yet in people dictionary
     def add_expense(self, payer, amount, participants, split):
         payer_clean = payer.strip().lower()
         participants_clean = [
@@ -22,14 +21,26 @@ class Ledger:
         ]
 
         if payer_clean not in self.people.keys():
-            raise IndexError(
-                f"Person {payer} does not yet exist. Create {payer} with .add_person() first before adding as a payer."
+            answer = input(
+                f"Person {payer.capitalize()} does not exist. Would you like to create them? (y/n) "
             )
+            if answer.lower() == "y":
+                self.add_person(payer)
+            else:
+                raise IndexError(
+                    f"Person {payer.capitalize()} does not yet exist. Create {payer.capitalize()} with .add_person() first before adding as a payer."
+                )
         for participant in participants_clean:
             if participant not in self.people.keys():
-                raise IndexError(
-                    f"Person {participant} does not yet exist. Create {participant} with .add_person() first before adding as a participant."
+                answer = input(
+                    f"Person {participant.capitalize()} does not exist. Would you like to create them? (y/n) "
                 )
+                if answer.lower() == "y":
+                    self.add_person(participant)
+                else:
+                    raise IndexError(
+                        f"Person {participant.capitalize()} does not yet exist. Create {participant.capitalize()} with .add_person() first before adding as a participant."
+                    )
 
         expense = Expense(payer_clean, amount, participants_clean, split)
         self.expenses.append(expense)
