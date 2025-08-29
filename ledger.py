@@ -91,7 +91,9 @@ class Ledger:
         """
         creditors = {p.name: p for p in self.people.values() if p.balance > 0}
         debitors = {p.name: p for p in self.people.values() if p.balance < 0}
-        while creditors and debitors and max(p.balance for p in creditors.values()) > 0:
+        while (
+            creditors and debitors and max(p.balance for p in creditors.values()) > 0.01
+        ):
             max_creditor = max(creditors.values(), key=lambda p: p.balance)
             max_debitor = min(debitors.values(), key=lambda p: p.balance)
             transfer_amount = round(
@@ -102,10 +104,16 @@ class Ledger:
             )
             max_creditor.balance = round(max_creditor.balance - transfer_amount, 2)
             max_debitor.balance = round(max_debitor.balance + transfer_amount, 2)
-            if round(max_creditor.balance, 2) == 0:
+            # Remove people with negligible balances (within 1 cent)
+            if abs(max_creditor.balance) <= 0.01:
                 del creditors[max_creditor.name]
-            if round(max_debitor.balance, 2) == 0:
+            if abs(max_debitor.balance) <= 0.01:
                 del debitors[max_debitor.name]
+
+        # Clean up any remaining small balances due to rounding
+        for person in self.people.values():
+            if abs(person.balance) <= 0.01:
+                person.balance = 0.0
 
     def list_expenses(self) -> None:
         """

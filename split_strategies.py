@@ -22,11 +22,10 @@ class EqualSplit(Split):
 
     def compute_shares(self, amount: float, participants: list[str]) -> dict:
         """
-        Compute equal shares for each participant.
+        Compute equal shares for each participant without rounding.
         """
         mapping = {
-            participant: round(amount / len(participants), 2)
-            for participant in participants
+            participant: amount / len(participants) for participant in participants
         }
         return mapping
 
@@ -59,7 +58,7 @@ class WeightsSplit(Split):
         if total_weight == 0:
             raise ValueError("Total weight must be greater than zero.")
         mapping = {
-            participant: round(amount * weights_clean[participant] / total_weight, 2)
+            participant: amount * weights_clean[participant] / total_weight
             for participant in participants
         }
         return mapping
@@ -95,7 +94,7 @@ class PercentSplit(Split):
         if round(total_percent, 2) != 100.0:
             raise ValueError("Percentages must sum to 100%.")
         mapping = {
-            participant: round(amount * percentages_clean[participant] / 100, 2)
+            participant: amount * percentages_clean[participant] / 100
             for participant in participants
         }
         return mapping
@@ -135,7 +134,7 @@ class ExactSplit(Split):
         if round(total, 2) != round(amount, 2):
             raise ValueError("Exact amounts must sum to the total amount.")
         mapping = {
-            participant: round(exact_amounts_clean[participant], 2)
+            participant: exact_amounts_clean[participant]
             for participant in participants
         }
         return mapping
