@@ -1,4 +1,4 @@
-from split_strategies import Split, EqualSplit, WeightsSplit, PercentSplit, ExactSplit
+from split_strategies import EqualSplit, WeightsSplit, PercentSplit, ExactSplit
 import inflect
 
 p = inflect.engine()

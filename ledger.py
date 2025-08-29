@@ -1,5 +1,4 @@
 from models import Person, Expense
-from split_strategies import Split, EqualSplit, WeightsSplit, PercentSplit, ExactSplit
 
 
 class Ledger:
@@ -35,14 +34,35 @@ class Ledger:
         expense = Expense(payer_clean, amount, participants_clean, split)
         self.expenses.append(expense)
 
+        self.people[expense.payer].paid += expense.amount
+
     def balances(self):
         for expense in self.expenses:
-            self.people[expense.payer].paid = expense.amount
             mapping = expense.split.compute_shares(expense.amount, expense.participants)
             for participant in mapping:
                 self.people[participant].owe += mapping[participant]
         for person in self.people.values():
             person.balance = person.paid - person.owe
+
+    def settle(self):
+        creditors = {}
+        debitors = {}
+        for person in self.people.values():
+            if person.balance > 0:
+                creditors[person.name] = person
+            elif person.balance < 0:
+                debitors[person.name] = person
+            else:
+                pass
+        while max(person.balance for person in creditors.values()) > 0:
+            max_creditor = max(creditors.values(), key=lambda person: person.balance)
+            max_debitor = min(debitors.values(), key=lambda person: person.balance)
+            transfer_amount = min(max_creditor.balance, abs(max_debitor.balance))
+            print(
+                f"{max_debitor.name.capitalize()} → {max_creditor.name.capitalize()}: {transfer_amount}£"
+            )
+            creditors[max_creditor.name].balance -= transfer_amount
+            debitors[max_debitor.name].balance += transfer_amount
 
     def list_expenses(self):
         expenses_str = "\n".join(str(expense) for expense in self.expenses)
