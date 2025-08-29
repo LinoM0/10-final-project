@@ -18,7 +18,7 @@ class Ledger:
             self.people[f"{payer_clean}"].balance += amount
             self.expenses.append(expense)
         else:
-            print(
+            raise IndexError(
                 f"Person {payer} does not yet exist. Create {payer} with .add_person() first before adding as a payer."
             )
 
@@ -26,13 +26,24 @@ class Ledger:
         total = 0
         for expense in self.expenses:
             total += expense.amount
+        share = total / len(self.people.keys())
         for person in self.people.values():
-            person.balance -= total / len(self.people.keys())
+            person.balance = round(person.balance - share, 2)
 
     def __str__(self):
         people_str = "\n".join(str(person) for person in self.people.values())
         expenses_str = "\n".join(str(expense) for expense in self.expenses)
         return f"People:\n{people_str}\n\nExpenses:\n{expenses_str}"
+
+
+def is_valid_money(value):
+    if not isinstance(value, (int, float)):
+        return False
+    value_str = f"{value:.10f}".rstrip("0").rstrip(".")
+    if "." in value_str:
+        decimals = value_str.split(".")[1]
+        return len(decimals) <= 2
+    return True
 
 
 class Person:
@@ -58,6 +69,8 @@ class Person:
     def balance(self, balance):
         if not isinstance(balance, (int, float)):
             raise ValueError("Balance is not numeric")
+        if not is_valid_money(balance):
+            raise ValueError("Balance must have at most two decimal places")
         self._balance = balance
 
     def __str__(self):
@@ -86,7 +99,9 @@ class Expense:
     @amount.setter
     def amount(self, amount):
         if not isinstance(amount, (int, float)):
-            raise ValueError("Expense is not numeric")
+            raise ValueError("Expense is not numeric. Input in format x.yz£")
+        if not is_valid_money(amount):
+            raise ValueError("Expense must have at most two decimal places")
         self._amount = amount
 
     def __str__(self):
@@ -99,22 +114,13 @@ def main():
     ledger.add_person("Lino")
     ledger.add_person("victoria")
     ledger.add_person("Bella")
-    ledger.add_expense("Lino", 10)
-    ledger.add_expense("Victoria", 20)
-    ledger.add_expense("Lino", 5)
-    ledger.add_expense("Rolli", 5)
+    ledger.add_expense("Lino", 10.00)
+    ledger.add_expense("Victoria", 20.1)
+    ledger.add_expense("Lino", 5.35)
+    # ledger.add_expense("Rolli", 5)
     print(ledger)
     ledger.split()
     print(ledger)
-
-
-# def function_1(): ...
-
-
-# def function_2(): ...
-
-
-# def function_n(): ...
 
 
 if __name__ == "__main__":
