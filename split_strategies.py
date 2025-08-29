@@ -8,9 +8,11 @@ class Split:
     ) -> dict:
         """
         Compute the shares for each participant.
+        
         :param amount: Total amount to split
         :param participants: List of participant names
         :return: Dictionary mapping participant to their share
+        :raises NotImplementedError: This method must be implemented by subclasses
         """
         raise NotImplementedError("Subclasses must implement compute_shares")
 
@@ -49,14 +51,30 @@ class WeightsSplit(Split):
     ) -> dict:
         """
         Compute shares for each participant based on weights.
+        
+        :param amount: Total amount to split
+        :param participants: List of participant names
+        :param weights: Optional weights dictionary
+        :return: Dictionary mapping participant to their share
+        :raises ValueError: If weights are missing or invalid
         """
         weights = weights if weights is not None else self.weights
         weights_clean = {w.strip().lower(): weights[w] for w in weights.keys()}
+        
         if not weights_clean or set(weights_clean.keys()) != set(participants):
-            raise ValueError("Weights must be provided for all participants.")
+            missing = set(participants) - set(weights_clean.keys())
+            extra = set(weights_clean.keys()) - set(participants)
+            error_msg = "Weights must be provided for all participants."
+            if missing:
+                error_msg += f" Missing weights for: {', '.join(missing)}"
+            if extra:
+                error_msg += f" Extra weights for: {', '.join(extra)}"
+            raise ValueError(error_msg)
+            
         total_weight = sum(weights_clean[p] for p in participants)
         if total_weight == 0:
-            raise ValueError("Total weight must be greater than zero.")
+            raise ValueError("Total weight must be greater than zero. All weights cannot be zero.")
+            
         mapping = {
             participant: amount * weights_clean[participant] / total_weight
             for participant in participants

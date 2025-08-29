@@ -3,11 +3,6 @@ Test module for split_strategies.py - tests all split strategy classes
 """
 
 import pytest
-import sys
-import os
-
-# Add parent directory to path to import modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from split_strategies import Split, EqualSplit, WeightsSplit, PercentSplit, ExactSplit
 

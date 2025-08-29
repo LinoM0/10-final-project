@@ -3,13 +3,8 @@ Test module for ledger.py - tests the Ledger class and all its methods
 """
 
 import pytest
-import sys
-import os
 from io import StringIO
 from unittest.mock import patch
-
-# Add parent directory to path to import modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from ledger import Ledger
 from models import Person, Expense
@@ -134,6 +129,8 @@ class TestLedger:
 
         assert len(ledger.expenses) == 1
         expense = ledger.expenses[0]
+        from split_strategies import PercentSplit
+        assert isinstance(expense.split, PercentSplit)
         assert expense.split.percentages == percentages
 
     def test_balances_calculation(self):

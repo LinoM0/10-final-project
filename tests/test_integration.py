@@ -3,12 +3,7 @@ Integration tests for the entire expense splitting system
 """
 
 import pytest
-import sys
-import os
 from unittest.mock import patch
-
-# Add parent directory to path to import modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from ledger import Ledger
 from models import Expense

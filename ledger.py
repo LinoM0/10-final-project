@@ -1,5 +1,9 @@
 from models import Person, Expense
 
+# Constants for settlement precision
+SETTLEMENT_TOLERANCE = 0.01  # 1 cent tolerance for settlement
+ROUNDING_PRECISION = 2       # Round to 2 decimal places for currency
+
 
 class Ledger:
     """
@@ -41,10 +45,23 @@ class Ledger:
         :param participants: List of participant names
         :param split: Split strategy ('equal', 'weights', 'percent', 'exact')
         :param kwargs: Additional arguments for split strategies
+        :raises ValueError: If expense parameters are invalid
+        :raises IndexError: If person creation is rejected
         """
+        if not payer or not payer.strip():
+            raise ValueError("Payer name cannot be empty")
+        if not participants:
+            raise ValueError("Participants list cannot be empty")
+        if amount <= 0:
+            raise ValueError("Amount must be positive")
+        
         payer_clean = payer.strip().lower()
-        participants_clean = [p.strip().lower() for p in participants]
+        participants_clean = [p.strip().lower() for p in participants if p.strip()]
+        
+        if not participants_clean:
+            raise ValueError("No valid participants after cleaning names")
 
+        # Check/create payer
         if payer_clean not in self.people:
             answer = input(
                 f"Person {payer.capitalize()} does not exist. Create? (y/n) "
@@ -55,6 +72,8 @@ class Ledger:
                 raise IndexError(
                     f"Person {payer.capitalize()} does not exist. Create them first."
                 )
+        
+        # Check/create participants
         for participant in participants_clean:
             if participant not in self.people:
                 answer = input(
@@ -83,7 +102,7 @@ class Ledger:
             for participant, share in mapping.items():
                 self.people[participant].owe += share
         for person in self.people.values():
-            person.balance = round(person.paid - person.owe, 2)
+            person.balance = round(person.paid - person.owe, ROUNDING_PRECISION)
 
     def settle(self) -> None:
         """
@@ -91,28 +110,32 @@ class Ledger:
         """
         creditors = {p.name: p for p in self.people.values() if p.balance > 0}
         debitors = {p.name: p for p in self.people.values() if p.balance < 0}
+        
         while (
-            creditors and debitors and max(p.balance for p in creditors.values()) > 0.01
+            creditors 
+            and debitors 
+            and max(p.balance for p in creditors.values()) > SETTLEMENT_TOLERANCE
         ):
             max_creditor = max(creditors.values(), key=lambda p: p.balance)
             max_debitor = min(debitors.values(), key=lambda p: p.balance)
             transfer_amount = round(
-                min(max_creditor.balance, abs(max_debitor.balance)), 2
+                min(max_creditor.balance, abs(max_debitor.balance)), ROUNDING_PRECISION
             )
             print(
                 f"{max_debitor.name.capitalize()} → {max_creditor.name.capitalize()}: {transfer_amount}£"
             )
-            max_creditor.balance = round(max_creditor.balance - transfer_amount, 2)
-            max_debitor.balance = round(max_debitor.balance + transfer_amount, 2)
-            # Remove people with negligible balances (within 1 cent)
-            if abs(max_creditor.balance) <= 0.01:
+            max_creditor.balance = round(max_creditor.balance - transfer_amount, ROUNDING_PRECISION)
+            max_debitor.balance = round(max_debitor.balance + transfer_amount, ROUNDING_PRECISION)
+            
+            # Remove people with negligible balances (within tolerance)
+            if abs(max_creditor.balance) <= SETTLEMENT_TOLERANCE:
                 del creditors[max_creditor.name]
-            if abs(max_debitor.balance) <= 0.01:
+            if abs(max_debitor.balance) <= SETTLEMENT_TOLERANCE:
                 del debitors[max_debitor.name]
 
         # Clean up any remaining small balances due to rounding
         for person in self.people.values():
-            if abs(person.balance) <= 0.01:
+            if abs(person.balance) <= SETTLEMENT_TOLERANCE:
                 person.balance = 0.0
 
     def list_expenses(self) -> None:

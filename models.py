@@ -4,7 +4,6 @@ import inflect
 p = inflect.engine()
 
 
-# TODO Properties for paid and owe
 class Person:
     """
     Represents a person in the ledger with a name, balance, paid, and owed amounts.
@@ -134,10 +133,10 @@ class Expense:
         return f"{self.amount}£ paid by {self.payer.capitalize()} due for {participants_str} with {self.split} method"
 
 
-def is_valid_money(value: float) -> bool:
+def is_valid_money(value) -> bool:
     """
     Check if a value is a valid monetary amount (at most two decimal places).
-    :param value: Value to check
+    :param value: Value to check (any type)
     :return: True if valid, False otherwise
     """
     if not isinstance(value, (int, float)):

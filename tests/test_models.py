@@ -3,11 +3,6 @@ Test module for models.py - tests Person and Expense classes
 """
 
 import pytest
-import sys
-import os
-
-# Add parent directory to path to import modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models import Person, Expense, is_valid_money
 from split_strategies import EqualSplit, WeightsSplit, PercentSplit, ExactSplit
@@ -35,7 +30,7 @@ class TestPerson:
     def test_person_name_validation(self):
         """Test name validation in Person."""
         with pytest.raises(ValueError, match="Missing name"):
-            person = Person("")
+            Person("")
 
     def test_person_balance_validation_invalid_money(self):
         """Test balance validation with invalid monetary values."""
@@ -138,32 +133,32 @@ class TestIsValidMoney:
 
     def test_valid_money_integers(self):
         """Test valid money with integers."""
-        assert is_valid_money(100) == True
-        assert is_valid_money(0) == True
-        assert is_valid_money(-50) == True
+        assert is_valid_money(100)
+        assert is_valid_money(0)
+        assert is_valid_money(-50)
 
     def test_valid_money_floats_one_decimal(self):
         """Test valid money with one decimal place."""
-        assert is_valid_money(10.5) == True
-        assert is_valid_money(99.9) == True
+        assert is_valid_money(10.5)
+        assert is_valid_money(99.9)
 
     def test_valid_money_floats_two_decimals(self):
         """Test valid money with two decimal places."""
-        assert is_valid_money(10.99) == True
-        assert is_valid_money(0.01) == True
-        assert is_valid_money(999.99) == True
+        assert is_valid_money(10.99)
+        assert is_valid_money(0.01)
+        assert is_valid_money(999.99)
 
     def test_invalid_money_more_than_two_decimals(self):
         """Test invalid money with more than two decimal places."""
-        assert is_valid_money(10.123) == False
-        assert is_valid_money(99.9999) == False
+        assert not is_valid_money(10.123)
+        assert not is_valid_money(99.9999)
 
     def test_invalid_money_non_numeric(self):
         """Test invalid money with non-numeric types."""
-        assert is_valid_money("100") == False
-        assert is_valid_money(None) == False
-        assert is_valid_money([100]) == False
-        assert is_valid_money({"amount": 100}) == False
+        assert not is_valid_money("100")
+        assert not is_valid_money(None)
+        assert not is_valid_money([100])
+        assert not is_valid_money({"amount": 100})
 
 
 if __name__ == "__main__":
