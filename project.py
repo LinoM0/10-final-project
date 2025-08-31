@@ -8,6 +8,14 @@ among a group of people through a command-line interface.
 
 from ledger import Ledger
 from models import is_valid_money
+from utils import (
+    format_currency, 
+    clean_input, 
+    validate_name, 
+    parse_amount_input, 
+    generate_expense_summary,
+    format_transaction_list
+)
 
 
 def print_banner():
@@ -51,27 +59,109 @@ def get_user_choice():
             print("❌ Please enter a valid number.")
 
 
+def get_monetary_input(prompt, min_amount=0.01, max_amount=999999.99):
+    """Get and validate monetary input from user using enhanced utilities."""
+    while True:
+        try:
+            value = input(prompt).strip()
+            
+            is_valid, amount, error_msg = parse_amount_input(value)
+            
+            if not is_valid:
+                print(f"❌ {error_msg}")
+                continue
+                
+            if amount < min_amount:
+                print(f"❌ Amount must be at least {format_currency(min_amount)}")
+                continue
+                
+            if amount > max_amount:
+                print(f"❌ Amount cannot exceed {format_currency(max_amount)}")
+                continue
+                
+            return amount
+            
+        except (KeyboardInterrupt, EOFError):
+            print("\n\n👋 Goodbye!")
+            exit(0)
+
+
+def get_name_input(prompt, existing_names=None):
+    """Get and validate name input from user using enhanced utilities."""
+    while True:
+        try:
+            name = input(prompt).strip()
+            
+            is_valid, error_msg = validate_name(name)
+            
+            if not is_valid:
+                print(f"❌ {error_msg}")
+                continue
+                
+            # Check for duplicates if provided
+            if existing_names and clean_input(name) in [clean_input(n) for n in existing_names]:
+                print(f"❌ Name '{name}' already exists.")
+                continue
+                
+            return name
+            
+        except (KeyboardInterrupt, EOFError):
+            print("\n\n👋 Goodbye!")
+            exit(0)
+            print("❌ Please enter a valid number.")
+
+
 def add_person_interactive(ledger):
     """Interactively add a person to the ledger."""
     print("\n➕ ADD A PERSON")
     print("─" * 20)
 
     while True:
-        name = input("Enter person's name (or 'back' to return): ").strip()
-
-        if name.lower() == "back":
-            return
-
-        if not name:
-            print("❌ Name cannot be empty. Please try again.")
-            continue
-
         try:
+            existing_names = list(ledger.people.keys())
+            name = get_name_input("Enter person's name (or 'back' to return): ", existing_names)
+
+            if name.lower() == "back":
+                return
+
             ledger.add_person(name)
             print(f"✅ {name.capitalize()} has been added!")
             return
-        except ValueError as e:
-            print(f"❌ {e}")
+        except (ValueError, TypeError) as e:
+            print(f"❌ Error: {e}")
+        except Exception as e:
+            print(f"❌ Unexpected error: {e}")
+
+
+def get_participants(ledger):
+    """Get participants for an expense - wrapper function."""
+    return get_participants_interactive(ledger)
+
+
+def get_split_type():
+    """Get split type from user."""
+    print("\nChoose split method:")
+    print("  1. Equal split")
+    print("  2. Weighted split")
+    print("  3. Percentage split")
+    print("  4. Exact amount split")
+    
+    while True:
+        try:
+            choice = input("Enter choice (1-4): ").strip()
+            if choice == "1":
+                return "equal"
+            elif choice == "2":
+                return "weights"
+            elif choice == "3":
+                return "percent"
+            elif choice == "4":
+                return "exact"
+            else:
+                print("❌ Invalid choice. Please enter 1, 2, 3, or 4.")
+        except (KeyboardInterrupt, EOFError):
+            print("\n\n👋 Goodbye!")
+            exit(0)
 
 
 def get_participants_interactive(ledger):
@@ -189,102 +279,73 @@ def add_expense_interactive(ledger):
         print("❌ No people available. Please add people first.")
         return
 
-    # Get payer
-    print("\nWho paid for this expense?")
-    people_list = list(ledger.people.keys())
-    for i, person in enumerate(people_list, 1):
-        print(f"  {i}. {person.capitalize()}")
-
-    while True:
-        try:
-            payer_choice = int(input("Enter number: "))
-            if 1 <= payer_choice <= len(people_list):
-                payer = people_list[payer_choice - 1]
-                break
-            else:
-                print(f"❌ Please enter a number between 1 and {len(people_list)}.")
-        except ValueError:
-            print("❌ Please enter a valid number.")
-
-    # Get amount
-    while True:
-        try:
-            amount = float(input("Enter expense amount: £"))
-            if not is_valid_money(amount):
-                print("❌ Please enter a valid monetary amount (max 2 decimal places).")
-                continue
-            if amount <= 0:
-                print("❌ Amount must be positive.")
-                continue
-            break
-        except ValueError:
-            print("❌ Please enter a valid number.")
-
-    # Get participants
-    participants = get_participants_interactive(ledger)
-    if not participants:
-        return
-
-    # Get split type
-    print("\nHow should this expense be split?")
-    print("1. Equal split")
-    print("2. Weighted split")
-    print("3. Percentage split")
-    print("4. Exact amounts")
-
-    while True:
-        try:
-            split_choice = int(input("Enter choice (1-4): "))
-            if split_choice == 1:
-                split_type = "equal"
-                additional_args = {}
-                break
-            elif split_choice == 2:
-                split_type = "weights"
-                weights = get_split_details("weights", participants)
-                if weights:
-                    additional_args = {"weights": weights}
-                    break
-            elif split_choice == 3:
-                split_type = "percent"
-                percentages = get_split_details("percent", participants)
-                if percentages:
-                    additional_args = {"percentages": percentages}
-                    break
-            elif split_choice == 4:
-                split_type = "exact"
-                result = get_split_details("exact", participants)
-                if result:
-                    exact_amounts, total_amount = result
-                    if abs(total_amount - amount) > 0.01:
-                        print(
-                            f"❌ Exact amounts total £{total_amount:.2f}, but expense is £{amount:.2f}"
-                        )
-                        continue
-                    additional_args = {"exact_amounts": exact_amounts}
-                    break
-            else:
-                print("❌ Please enter a number between 1 and 4.")
-        except ValueError:
-            print("❌ Please enter a valid number.")
-
-    # Add the expense
     try:
+        # Get payer
+        print("\nWho paid for this expense?")
+        people_list = list(ledger.people.keys())
+        for i, person in enumerate(people_list, 1):
+            print(f"  {i}. {person.capitalize()}")
+
+        while True:
+            try:
+                payer_choice = int(input("Enter number: "))
+                if 1 <= payer_choice <= len(people_list):
+                    payer = people_list[payer_choice - 1]
+                    break
+                else:
+                    print(f"❌ Please enter a number between 1 and {len(people_list)}.")
+            except ValueError:
+                print("❌ Please enter a valid number.")
+
+        # Get amount using enhanced validation
+        amount = get_monetary_input("Enter expense amount (£): ")
+
+        # Get participants
+        participants = get_participants_interactive(ledger)
+        if not participants:
+            print("❌ No participants selected.")
+            return
+
+        # Get split type
+        split_type = get_split_type()
+
+        # Get additional split details
+        additional_args = {}
+        if split_type == "weights":
+            weights = get_split_details("weights", participants)
+            if weights:
+                additional_args = {"weights": weights}
+        elif split_type == "percent":
+            percentages = get_split_details("percent", participants)
+            if percentages:
+                additional_args = {"percentages": percentages}
+        elif split_type == "exact":
+            result = get_split_details("exact", participants)
+            if result:
+                exact_amounts, total_amount = result
+                if abs(total_amount - amount) > 0.01:
+                    print(f"❌ Exact amounts total £{total_amount:.2f}, but expense is £{amount:.2f}")
+                    return
+                additional_args = {"exact_amounts": exact_amounts}
+
+        # Add the expense
         ledger.add_expense(payer, amount, participants, split_type, **additional_args)
         print(f"✅ Expense of £{amount:.2f} paid by {payer.capitalize()} has been added!")
         
         # Show expense summary
-        print(f"   Split type: {split_type.capitalize()}")
-        print(f"   Participants: {', '.join(p.capitalize() for p in participants)}")
+        print(f"   📝 Split type: {split_type.capitalize()}")
+        print(f"   👥 Participants: {', '.join(p.capitalize() for p in participants)}")
         if split_type == "weights" and additional_args.get("weights"):
-            print(f"   Weights: {additional_args['weights']}")
+            print(f"   ⚖️  Weights: {additional_args['weights']}")
         elif split_type == "percent" and additional_args.get("percentages"):
-            print(f"   Percentages: {additional_args['percentages']}")
+            print(f"   📊 Percentages: {additional_args['percentages']}")
         elif split_type == "exact" and additional_args.get("exact_amounts"):
-            print(f"   Exact amounts: {additional_args['exact_amounts']}")
+            print(f"   💰 Exact amounts: {additional_args['exact_amounts']}")
             
+    except (ValueError, TypeError, IndexError) as e:
+        print(f"❌ Error: {e}")
     except Exception as e:
-        print(f"❌ Error adding expense: {e}")
+        print(f"❌ Unexpected error: {e}")
 
 
 def view_people(ledger):

@@ -1,8 +1,10 @@
-from models import Person, Expense
+from models import Person, Expense, MAX_NAME_LENGTH, MIN_AMOUNT, MAX_AMOUNT
+import re
 
 # Constants for settlement precision
 SETTLEMENT_TOLERANCE = 0.01  # 1 cent tolerance for settlement
 ROUNDING_PRECISION = 2       # Round to 2 decimal places for currency
+MAX_PEOPLE = 1000            # Maximum number of people in ledger
 
 
 class Ledger:
@@ -28,11 +30,28 @@ class Ledger:
         :param balance: Initial balance
         :param paid: Initial paid amount
         :param owe: Initial owed amount
+        :raises ValueError: If name is invalid or ledger is full
         """
+        if not isinstance(name, str):
+            raise TypeError("Name must be a string")
+        
         name_clean = name.strip().lower()
+        if not name_clean:
+            raise ValueError("Name cannot be empty")
+        
+        if len(name_clean) > MAX_NAME_LENGTH:
+            raise ValueError(f"Name too long (max {MAX_NAME_LENGTH} characters)")
+            
+        if not re.match(r"^[a-zA-Z0-9\s\-_\.]+$", name_clean):
+            raise ValueError("Name contains invalid characters")
+        
+        if len(self.people) >= MAX_PEOPLE:
+            raise ValueError(f"Cannot add more people (max {MAX_PEOPLE})")
+        
         if name_clean in self.people:
-            print(f"Person {name} already exists!")
+            print(f"Person {name_clean} already exists!")
             return
+            
         self.people[name_clean] = Person(name_clean, balance, paid, owe)
 
     def add_expense(
@@ -48,12 +67,21 @@ class Ledger:
         :raises ValueError: If expense parameters are invalid
         :raises IndexError: If person creation is rejected
         """
+        # Enhanced validation
+        if not isinstance(payer, str):
+            raise TypeError("Payer must be a string")
+        if not isinstance(participants, list):
+            raise TypeError("Participants must be a list")
+        if not isinstance(amount, (int, float)):
+            raise TypeError("Amount must be a number")
         if not payer or not payer.strip():
             raise ValueError("Payer name cannot be empty")
         if not participants:
             raise ValueError("Participants list cannot be empty")
         if amount <= 0:
             raise ValueError("Amount must be positive")
+        if amount > MAX_AMOUNT:
+            raise ValueError(f"Amount cannot exceed {MAX_AMOUNT}£")
         
         payer_clean = payer.strip().lower()
         participants_clean = [p.strip().lower() for p in participants if p.strip()]

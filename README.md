@@ -11,7 +11,6 @@ A comprehensive Python application for splitting shared expenses among friends, 
 - **Mathematical Precision**: Delayed rounding ensures perfect balance accuracy
 - **Interactive Interface**: User-friendly command-line interface with clear menus
 - **Smart Settlement**: Minimal transaction settlement algorithm
-- **Auto Person Creation**: Automatically create missing people when adding expenses
 
 ### Split Strategies
 1. **Equal Split**: Divide expenses equally among all participants
@@ -21,10 +20,12 @@ A comprehensive Python application for splitting shared expenses among friends, 
 
 ### User Experience
 - 🎨 Clean, emoji-enhanced interface
-- 📊 Comprehensive summary and statistics
-- ⚡ Input validation and error handling
+- 📊 Comprehensive summary and statistics with advanced analytics
+- ⚡ Enhanced input validation and error handling
 - 🔄 Interactive menu-driven workflow
 - 💡 Clear feedback and confirmation messages
+- 🛡️ Robust type checking and edge case handling
+- 📈 Performance monitoring and benchmarking tools
 
 ## 🚀 Quick Start
 
@@ -74,6 +75,7 @@ expense-splitting-calculator/
 ├── ledger.py               # Core ledger management
 ├── models.py               # Person and Expense data models
 ├── split_strategies.py     # Split calculation algorithms
+├── utils.py                # Utility functions and validation helpers
 ├── tests/                  # Comprehensive test suite
 │   ├── test_ledger.py
 │   ├── test_models.py
@@ -85,26 +87,12 @@ expense-splitting-calculator/
 ```
 
 ### Key Classes
-- **`Ledger`**: Central management of people and expenses
+- **`Ledger`**: Central management of people and expenses with enhanced validation
 - **`Person`**: Individual with balance, paid, and owed amounts
 - **`Expense`**: Single expense with payer, amount, and split strategy
 - **`Split`**: Abstract base for splitting algorithms
 - **`EqualSplit`, `WeightsSplit`, etc.**: Concrete splitting implementations
-
-## 🧮 Mathematical Precision
-
-This application implements a **precision-first approach** to expense calculations:
-
-- **No Intermediate Rounding**: Calculations preserve full floating-point precision
-- **Settlement-Time Rounding**: Only round when displaying final amounts
-- **Balance Conservation**: Mathematically guaranteed zero-sum balances
-- **Tolerance Handling**: 1-cent tolerance for floating-point precision
-
-### Before vs After
-```
-❌ Old Approach: 10.00 ÷ 3 = 3.33 each → Total: 9.99 (Lost 0.01!)
-✅ New Approach: 10.00 ÷ 3 = 3.333... each → Total: 10.00 (Perfect!)
-```
+- **`Utils`**: Validation helpers, formatting functions, and analytics tools
 
 ## 🧪 Testing
 
@@ -114,25 +102,16 @@ Comprehensive test suite with 94 tests covering:
 - **Error Handling**: Invalid inputs and boundary conditions
 - **Precision Tests**: Mathematical accuracy verification
 
-```bash
-# Run all tests
-pytest -v ./tests
-
-# Run specific test file
-pytest tests/test_ledger.py -v
-
-# Run with coverage (if installed)
-pytest --cov=. tests/
-```
-
 ## 🎯 Design Principles
 
 1. **Separation of Concerns**: Clear separation between data models, business logic, and UI
 2. **Strategy Pattern**: Pluggable split algorithms for extensibility
-3. **Input Validation**: Robust validation with clear error messages
-4. **User Experience**: Intuitive interface with helpful feedback
-5. **Mathematical Accuracy**: Precision-focused calculations
+3. **Enhanced Input Validation**: Robust validation with descriptive error messages
+4. **User Experience**: Intuitive interface with helpful feedback and smart formatting
+5. **Mathematical Accuracy**: Precision-focused calculations with edge case handling
 6. **Test Coverage**: Comprehensive testing for reliability
+7. **Performance Optimization**: Efficient algorithms
+8. **Code Quality**: Modular design with utility functions and constants
 
 ## 🔧 Customization
 
@@ -150,12 +129,6 @@ class CustomSplit(Split):
         return {participant: share for participant, share in mapping}
 ```
 
-## 📈 Performance
-
-- **Time Complexity**: O(n) for most operations where n = number of people
-- **Space Complexity**: O(p + e) where p = people, e = expenses
-- **Settlement Algorithm**: Optimized greedy approach for minimal transactions
-
 ## 🤝 Contributing
 
 This is a CS50P final project, but suggestions for improvements are welcome:
@@ -170,10 +143,12 @@ This is a CS50P final project, but suggestions for improvements are welcome:
 This project demonstrates:
 - **Object-Oriented Programming**: Classes, inheritance, encapsulation
 - **Design Patterns**: Strategy pattern for split algorithms
-- **Testing**: Unit and integration testing with pytest
+- **Testing**: Unit and integration testing with pytest (94 comprehensive tests)
 - **Error Handling**: Robust exception handling and validation
 - **User Interface**: Interactive command-line application design
 - **Mathematical Computing**: Precision handling in financial calculations
+- **Performance Analysis**: Benchmarking and optimization techniques
+- **Code Quality**: Modular design, utility functions, and documentation
 
 ## 📋 Requirements
 

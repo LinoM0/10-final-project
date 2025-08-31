@@ -1,5 +1,12 @@
 from split_strategies import EqualSplit, WeightsSplit, PercentSplit, ExactSplit, Split
 import inflect
+import re
+
+# Constants
+MAX_NAME_LENGTH = 50
+MIN_AMOUNT = 0.01
+MAX_AMOUNT = 999999.99
+MAX_PARTICIPANTS = 100
 
 p = inflect.engine()
 
@@ -31,7 +38,15 @@ class Person:
     def name(self, name: str) -> None:
         if not name:
             raise ValueError("Missing name")
-        self._name = name
+        if not isinstance(name, str):
+            raise TypeError("Name must be a string")
+        if len(name.strip()) == 0:
+            raise ValueError("Name cannot be empty or whitespace only")
+        if len(name.strip()) > MAX_NAME_LENGTH:
+            raise ValueError(f"Name too long (max {MAX_NAME_LENGTH} characters)")
+        if not re.match(r"^[a-zA-Z0-9\s\-_\.]+$", name.strip()):
+            raise ValueError("Name contains invalid characters (use letters, numbers, spaces, hyphens, underscores, dots)")
+        self._name = name.strip().lower()
 
     @property
     def balance(self) -> float:
@@ -99,9 +114,11 @@ class Expense:
     def amount(self, amount: float) -> None:
         if not is_valid_money(amount):
             raise ValueError("Expense not valid monetary amount (enter as x.yz£)")
-        if amount < 0:
-            raise ValueError("Expense must be positive.")
-        self._amount = amount
+        if amount <= 0:
+            raise ValueError("Expense must be positive")
+        if amount > MAX_AMOUNT:
+            raise ValueError(f"Expense cannot exceed {MAX_AMOUNT}£")
+        self._amount = round(amount, 2)
 
     @property
     def participants(self) -> list[str]:
@@ -112,7 +129,29 @@ class Expense:
     def participants(self, participants: list[str]) -> None:
         if not participants:
             raise ValueError("Missing participants")
-        self._participants = participants
+        if not isinstance(participants, list):
+            raise TypeError("Participants must be a list")
+        if len(participants) > MAX_PARTICIPANTS:
+            raise ValueError(f"Too many participants (max {MAX_PARTICIPANTS})")
+        
+        # Clean and validate each participant name
+        clean_participants = []
+        for participant in participants:
+            if not isinstance(participant, str):
+                raise TypeError("All participant names must be strings")
+            clean_name = participant.strip().lower()
+            if not clean_name:
+                raise ValueError("Participant names cannot be empty")
+            if len(clean_name) > MAX_NAME_LENGTH:
+                raise ValueError(f"Participant name too long (max {MAX_NAME_LENGTH} characters)")
+            if not re.match(r"^[a-zA-Z0-9\s\-_\.]+$", clean_name):
+                raise ValueError("Participant name contains invalid characters")
+            clean_participants.append(clean_name)
+        
+        if len(set(clean_participants)) != len(clean_participants):
+            raise ValueError("Duplicate participants found")
+        
+        self._participants = clean_participants
 
     @property
     def split(self) -> Split:
@@ -141,6 +180,16 @@ def is_valid_money(value) -> bool:
     """
     if not isinstance(value, (int, float)):
         return False
+    
+    # Check for special float values
+    if not (float('-inf') < value < float('inf')):
+        return False
+    
+    # Ensure it's not NaN
+    if value != value:  # NaN check
+        return False
+    
+    # Check decimal places precision
     value_str = f"{value:.10f}".rstrip("0").rstrip(".")
     if "." in value_str:
         decimals = value_str.split(".")[1]
