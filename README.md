@@ -8,9 +8,9 @@ A comprehensive Python application for splitting shared expenses among friends, 
 
 ### Core Functionality
 - **Multiple Split Strategies**: Equal, weighted, percentage-based, and exact amount splits
-- **Mathematical Precision**: Delayed rounding ensures perfect balance accuracy
-- **Interactive Interface**: User-friendly command-line interface with clear menus
-- **Smart Settlement**: Minimal transaction settlement algorithm
+- **Interactive Interface**: Professionally organized CLI with clear menu structure
+- **Smart Settlement**: Optimized minimal transaction settlement algorithm
+- **Modular Architecture**: Clean separation with constants, utils, models, and strategies
 
 ### Split Strategies
 1. **Equal Split**: Divide expenses equally among all participants
@@ -19,12 +19,13 @@ A comprehensive Python application for splitting shared expenses among friends, 
 4. **Exact Amount Split**: Define precise amounts for each participant
 
 ### User Experience
-- 🎨 Clean, emoji-enhanced interface
-- 📊 Comprehensive summary and statistics with advanced analytics
-- ⚡ Enhanced input validation and error handling
-- 🔄 Interactive menu-driven workflow
+- 🎨 Clean, emoji-enhanced interface with improved navigation
+- 📊 Comprehensive balance tracking with professional formatting
+- ⚡ Enhanced input validation with centralized constants configuration
+- 🔄 Interactive menu-driven workflow with logical organization
 - 💡 Clear feedback and confirmation messages
-- 🛡️ Robust type checking and edge case handling
+- 🛡️ Robust type checking and comprehensive error handling
+- 🏗️ Modular codebase structure for maintainability and testing
 
 ## 🚀 Quick Start
 
@@ -70,19 +71,20 @@ pytest -v ./tests
 ### Project Structure
 ```
 expense-splitting-calculator/
-├── project.py              # Main interactive application
-├── ledger.py               # Core ledger management
+├── project.py              # Main interactive CLI application
+├── ledger.py               # Core ledger management logic
 ├── models.py               # Person and Expense data models
-├── split_strategies.py     # Split calculation algorithms
-├── utils.py                # Utility functions and validation helpers
-├── tests/                  # Comprehensive test suite
+├── split_strategies.py     # Split calculation algorithms  
+├── utils.py                # Utility functions and validation
+├── constants.py            # Application constants and configuration
+├── tests/                  # Comprehensive test suite (94 tests)
 │   ├── test_ledger.py
 │   ├── test_models.py
 │   ├── test_split_strategies.py
 │   ├── test_integration.py
 │   └── conftest.py
 ├── pytest.ini             # Test configuration
-└── README.md              # This file
+└── README.md              # This documentation
 ```
 
 ### Key Classes
@@ -91,7 +93,6 @@ expense-splitting-calculator/
 - **`Expense`**: Single expense with payer, amount, and split strategy
 - **`Split`**: Abstract base for splitting algorithms
 - **`EqualSplit`, `WeightsSplit`, etc.**: Concrete splitting implementations
-- **`Utils`**: Validation helpers, formatting functions, and analytics tools
 
 ## 🧪 Testing
 
@@ -140,13 +141,15 @@ This is a CS50P final project, but suggestions for improvements are welcome:
 ## 🎓 Educational Value
 
 This project demonstrates:
-- **Object-Oriented Programming**: Classes, inheritance, encapsulation
-- **Design Patterns**: Strategy pattern for split algorithms
-- **Testing**: Unit and integration testing with pytest (94 comprehensive tests)
-- **Error Handling**: Robust exception handling and validation
-- **User Interface**: Interactive command-line application design
-- **Mathematical Computing**: Precision handling in financial calculations
-- **Code Quality**: Modular design, utility functions, and documentation
+- **Object-Oriented Programming**: Classes, inheritance, encapsulation with enhanced data models
+- **Design Patterns**: Strategy pattern for split algorithms with abstract base classes
+- **Modular Architecture**: Professional code organization with constants, utils, models separation
+- **Testing**: Comprehensive unit and integration testing with pytest (94 tests)
+- **Error Handling**: Robust exception handling with centralized validation
+- **User Interface**: Professional interactive CLI with organized menu system
+- **Mathematical Computing**: Precision handling in financial calculations with consistent formatting
+- **Code Quality**: Clean architecture, utility functions, comprehensive documentation
+- **Configuration Management**: Centralized constants for maintainable configuration
 
 ## 📋 Requirements
 

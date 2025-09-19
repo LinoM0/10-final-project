@@ -53,7 +53,7 @@ class TestPerson:
     def test_person_str_representation(self):
         """Test string representation of Person."""
         person = Person("alice", balance=25.50)
-        assert str(person) == "Alice with balance: 25.5£"
+        assert str(person) == "Alice with balance: 25.50£"
 
 
 class TestExpense:
@@ -124,7 +124,7 @@ class TestExpense:
     def test_expense_str_representation(self):
         """Test string representation of Expense."""
         expense = Expense("alice", 60.0, ["alice", "bob"], "equal")
-        expected = "60.0£ paid by Alice due for Alice and Bob with Equal split method"
+        expected = "60.00£ paid by Alice due for Alice and Bob with Equal split method"
         assert str(expense) == expected
 
 

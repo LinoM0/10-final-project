@@ -130,6 +130,7 @@ class TestLedger:
         assert len(ledger.expenses) == 1
         expense = ledger.expenses[0]
         from split_strategies import PercentSplit
+
         assert isinstance(expense.split, PercentSplit)
         assert expense.split.percentages == percentages
 
@@ -191,7 +192,7 @@ class TestLedger:
             ledger.settle()
             output = fake_output.getvalue()
 
-        assert "Bob → Alice: 50.0£" in output
+        assert "Bob → Alice: 50.00£" in output
         assert ledger.people["alice"].balance == 0.0
         assert ledger.people["bob"].balance == 0.0
 
@@ -245,7 +246,7 @@ class TestLedger:
             output = fake_output.getvalue()
 
         assert "Expenses:" in output
-        assert "100.0£ paid by Alice" in output
+        assert "100.00£ paid by Alice" in output
         assert "Equal split" in output
 
     def test_list_balances_empty(self):
@@ -269,8 +270,8 @@ class TestLedger:
             output = fake_output.getvalue()
 
         assert "People:" in output
-        assert "Alice with balance: 50.0£" in output
-        assert "Bob with balance: -30.0£" in output
+        assert "Alice with balance: 50.00£" in output
+        assert "Bob with balance: -30.00£" in output
 
     def test_list_balances_sorted(self):
         """Test that balances are listed in descending order."""
@@ -300,8 +301,8 @@ class TestLedger:
 
         assert "People:" in result
         assert "Expenses:" in result
-        assert "Alice with balance: 25.0£" in result
-        assert "50.0£ paid by Alice" in result
+        assert "Alice with balance: 25.00£" in result
+        assert "50.00£ paid by Alice" in result
 
     def test_integration_full_workflow(self):
         """Test a complete workflow from adding people to settlement."""
