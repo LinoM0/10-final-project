@@ -1,4 +1,5 @@
 from split_strategies import EqualSplit, WeightsSplit, PercentSplit, ExactSplit, Split
+from utils import is_valid_money
 import inflect
 import re
 
@@ -45,7 +46,9 @@ class Person:
         if len(name.strip()) > MAX_NAME_LENGTH:
             raise ValueError(f"Name too long (max {MAX_NAME_LENGTH} characters)")
         if not re.match(r"^[a-zA-Z0-9\s\-_\.]+$", name.strip()):
-            raise ValueError("Name contains invalid characters (use letters, numbers, spaces, hyphens, underscores, dots)")
+            raise ValueError(
+                "Name contains invalid characters (use letters, numbers, spaces, hyphens, underscores, dots)"
+            )
         self._name = name.strip().lower()
 
     @property
@@ -133,7 +136,7 @@ class Expense:
             raise TypeError("Participants must be a list")
         if len(participants) > MAX_PARTICIPANTS:
             raise ValueError(f"Too many participants (max {MAX_PARTICIPANTS})")
-        
+
         # Clean and validate each participant name
         clean_participants = []
         for participant in participants:
@@ -143,14 +146,16 @@ class Expense:
             if not clean_name:
                 raise ValueError("Participant names cannot be empty")
             if len(clean_name) > MAX_NAME_LENGTH:
-                raise ValueError(f"Participant name too long (max {MAX_NAME_LENGTH} characters)")
+                raise ValueError(
+                    f"Participant name too long (max {MAX_NAME_LENGTH} characters)"
+                )
             if not re.match(r"^[a-zA-Z0-9\s\-_\.]+$", clean_name):
                 raise ValueError("Participant name contains invalid characters")
             clean_participants.append(clean_name)
-        
+
         if len(set(clean_participants)) != len(clean_participants):
             raise ValueError("Duplicate participants found")
-        
+
         self._participants = clean_participants
 
     @property
@@ -170,28 +175,3 @@ class Expense:
         """
         participants_str = p.join([name.capitalize() for name in self.participants])
         return f"{self.amount}£ paid by {self.payer.capitalize()} due for {participants_str} with {self.split} method"
-
-
-def is_valid_money(value) -> bool:
-    """
-    Check if a value is a valid monetary amount (at most two decimal places).
-    :param value: Value to check (any type)
-    :return: True if valid, False otherwise
-    """
-    if not isinstance(value, (int, float)):
-        return False
-    
-    # Check for special float values
-    if not (float('-inf') < value < float('inf')):
-        return False
-    
-    # Ensure it's not NaN
-    if value != value:  # NaN check
-        return False
-    
-    # Check decimal places precision
-    value_str = f"{value:.10f}".rstrip("0").rstrip(".")
-    if "." in value_str:
-        decimals = value_str.split(".")[1]
-        return len(decimals) <= 2
-    return True

@@ -7,15 +7,7 @@ among a group of people through a command-line interface.
 """
 
 from ledger import Ledger
-from models import is_valid_money
-from utils import (
-    format_currency, 
-    clean_input, 
-    validate_name, 
-    parse_amount_input, 
-    generate_expense_summary,
-    format_transaction_list
-)
+from utils import format_currency, clean_input, validate_name, parse_amount_input
 
 
 def print_banner():
@@ -64,23 +56,23 @@ def get_monetary_input(prompt, min_amount=0.01, max_amount=999999.99):
     while True:
         try:
             value = input(prompt).strip()
-            
+
             is_valid, amount, error_msg = parse_amount_input(value)
-            
+
             if not is_valid:
                 print(f"❌ {error_msg}")
                 continue
-                
+
             if amount < min_amount:
                 print(f"❌ Amount must be at least {format_currency(min_amount)}")
                 continue
-                
+
             if amount > max_amount:
                 print(f"❌ Amount cannot exceed {format_currency(max_amount)}")
                 continue
-                
+
             return amount
-            
+
         except (KeyboardInterrupt, EOFError):
             print("\n\n👋 Goodbye!")
             exit(0)
@@ -91,20 +83,22 @@ def get_name_input(prompt, existing_names=None):
     while True:
         try:
             name = input(prompt).strip()
-            
+
             is_valid, error_msg = validate_name(name)
-            
+
             if not is_valid:
                 print(f"❌ {error_msg}")
                 continue
-                
+
             # Check for duplicates if provided
-            if existing_names and clean_input(name) in [clean_input(n) for n in existing_names]:
+            if existing_names and clean_input(name) in [
+                clean_input(n) for n in existing_names
+            ]:
                 print(f"❌ Name '{name}' already exists.")
                 continue
-                
+
             return name
-            
+
         except (KeyboardInterrupt, EOFError):
             print("\n\n👋 Goodbye!")
             exit(0)
@@ -119,7 +113,9 @@ def add_person_interactive(ledger):
     while True:
         try:
             existing_names = list(ledger.people.keys())
-            name = get_name_input("Enter person's name (or 'back' to return): ", existing_names)
+            name = get_name_input(
+                "Enter person's name (or 'back' to return): ", existing_names
+            )
 
             if name.lower() == "back":
                 return
@@ -145,7 +141,7 @@ def get_split_type():
     print("  2. Weighted split")
     print("  3. Percentage split")
     print("  4. Exact amount split")
-    
+
     while True:
         try:
             choice = input("Enter choice (1-4): ").strip()
@@ -324,14 +320,18 @@ def add_expense_interactive(ledger):
             if result:
                 exact_amounts, total_amount = result
                 if abs(total_amount - amount) > 0.01:
-                    print(f"❌ Exact amounts total £{total_amount:.2f}, but expense is £{amount:.2f}")
+                    print(
+                        f"❌ Exact amounts total £{total_amount:.2f}, but expense is £{amount:.2f}"
+                    )
                     return
                 additional_args = {"exact_amounts": exact_amounts}
 
         # Add the expense
         ledger.add_expense(payer, amount, participants, split_type, **additional_args)
-        print(f"✅ Expense of £{amount:.2f} paid by {payer.capitalize()} has been added!")
-        
+        print(
+            f"✅ Expense of £{amount:.2f} paid by {payer.capitalize()} has been added!"
+        )
+
         # Show expense summary
         print(f"   📝 Split type: {split_type.capitalize()}")
         print(f"   👥 Participants: {', '.join(p.capitalize() for p in participants)}")
@@ -341,7 +341,7 @@ def add_expense_interactive(ledger):
             print(f"   📊 Percentages: {additional_args['percentages']}")
         elif split_type == "exact" and additional_args.get("exact_amounts"):
             print(f"   💰 Exact amounts: {additional_args['exact_amounts']}")
-            
+
     except (ValueError, TypeError, IndexError) as e:
         print(f"❌ Error: {e}")
     except Exception as e:
@@ -383,40 +383,44 @@ def show_summary(ledger):
     """Display a comprehensive summary of the ledger."""
     print("\n� LEDGER SUMMARY")
     print("─" * 30)
-    
+
     if not ledger.people:
         print("No people in the ledger yet.")
         input("\nPress Enter to continue...")
         return
-    
+
     print(f"👥 People: {len(ledger.people)}")
     print(f"🧾 Expenses: {len(ledger.expenses)}")
-    
+
     if ledger.expenses:
         total_expenses = sum(expense.amount for expense in ledger.expenses)
         print(f"💰 Total amount: £{total_expenses:.2f}")
         print(f"📈 Average expense: £{total_expenses / len(ledger.expenses):.2f}")
-        
+
         ledger.balances()  # Calculate current balances
-        
+
         creditors = [p for p in ledger.people.values() if p.balance > 0]
         debtors = [p for p in ledger.people.values() if p.balance < 0]
-        
+
         if creditors:
             max_creditor = max(creditors, key=lambda p: p.balance)
-            print(f"💚 Biggest creditor: {max_creditor.name.capitalize()} (+£{max_creditor.balance:.2f})")
-        
+            print(
+                f"💚 Biggest creditor: {max_creditor.name.capitalize()} (+£{max_creditor.balance:.2f})"
+            )
+
         if debtors:
             max_debtor = min(debtors, key=lambda p: p.balance)
-            print(f"💸 Biggest debtor: {max_debtor.name.capitalize()} (-£{abs(max_debtor.balance):.2f})")
-            
+            print(
+                f"💸 Biggest debtor: {max_debtor.name.capitalize()} (-£{abs(max_debtor.balance):.2f})"
+            )
+
         # Check if balanced
         total_balance = sum(p.balance for p in ledger.people.values())
         if abs(total_balance) < 0.01:
             print("✅ Ledger is mathematically balanced!")
         else:
             print(f"⚠️ Ledger imbalance: £{total_balance:.2f}")
-    
+
     input("\nPress Enter to continue...")
 
 
@@ -432,10 +436,10 @@ def settle_debts(ledger):
 
     print("Calculating balances...")
     ledger.balances()
-    
+
     print("\nCurrent balances:")
     ledger.list_balances()
-    
+
     print("\nSettlement transactions:")
     print("─" * 30)
     ledger.settle()

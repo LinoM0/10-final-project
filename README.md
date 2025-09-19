@@ -25,7 +25,6 @@ A comprehensive Python application for splitting shared expenses among friends, 
 - 🔄 Interactive menu-driven workflow
 - 💡 Clear feedback and confirmation messages
 - 🛡️ Robust type checking and edge case handling
-- 📈 Performance monitoring and benchmarking tools
 
 ## 🚀 Quick Start
 
@@ -147,7 +146,6 @@ This project demonstrates:
 - **Error Handling**: Robust exception handling and validation
 - **User Interface**: Interactive command-line application design
 - **Mathematical Computing**: Precision handling in financial calculations
-- **Performance Analysis**: Benchmarking and optimization techniques
 - **Code Quality**: Modular design, utility functions, and documentation
 
 ## 📋 Requirements
