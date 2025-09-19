@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Interactive Expense Splitting Application
 
@@ -14,6 +13,7 @@ from constants import MENU_OPTIONS, SPLIT_TYPES, DEFAULT_CURRENCY_SYMBOL
 # =============================================================================
 # USER INTERFACE FUNCTIONS
 # =============================================================================
+
 
 def print_banner():
     """Display the application welcome banner."""
@@ -60,15 +60,16 @@ def get_user_choice():
 # INPUT VALIDATION FUNCTIONS
 # =============================================================================
 
+
 def get_monetary_input(prompt, min_amount=0.01, max_amount=999999.99):
     """
     Get and validate monetary input from user.
-    
+
     Args:
         prompt: Input prompt message
         min_amount: Minimum allowed amount
         max_amount: Maximum allowed amount
-    
+
     Returns:
         Validated monetary amount as float
     """
@@ -99,11 +100,11 @@ def get_monetary_input(prompt, min_amount=0.01, max_amount=999999.99):
 def get_name_input(prompt, existing_names=None):
     """
     Get and validate name input from user.
-    
+
     Args:
         prompt: Input prompt message
         existing_names: List of existing names to check for duplicates
-    
+
     Returns:
         Validated name string
     """
@@ -154,13 +155,14 @@ def get_split_type():
 # PARTICIPANT SELECTION FUNCTIONS
 # =============================================================================
 
+
 def get_participants_interactive(ledger):
     """
     Get expense participants interactively from available people.
-    
+
     Args:
         ledger: The Ledger instance
-    
+
     Returns:
         List of selected participant names, or None if no people available
     """
@@ -173,7 +175,9 @@ def get_participants_interactive(ledger):
     for i, person in enumerate(people_list, 1):
         print(f"  {i}. {person.capitalize()}")
 
-    print("\nSelect participants (enter numbers separated by commas, or 'all' for everyone):")
+    print(
+        "\nSelect participants (enter numbers separated by commas, or 'all' for everyone):"
+    )
 
     while True:
         try:
@@ -202,14 +206,15 @@ def get_participants_interactive(ledger):
 # SPLIT DETAILS FUNCTIONS
 # =============================================================================
 
+
 def get_split_details(split_type, participants):
     """
     Get additional details for specific split types.
-    
+
     Args:
         split_type: Type of split ('weights', 'percent', 'exact')
         participants: List of participant names
-    
+
     Returns:
         Dictionary with split-specific parameters
     """
@@ -227,7 +232,7 @@ def get_weights_input(participants):
     """Get weights for each participant."""
     weights = {}
     print("\nEnter weights for each participant:")
-    
+
     for participant in participants:
         while True:
             try:
@@ -242,7 +247,7 @@ def get_weights_input(participants):
             except (KeyboardInterrupt, EOFError):
                 print("\n\n👋 Goodbye!")
                 exit(0)
-    
+
     return {"weights": weights}
 
 
@@ -250,20 +255,24 @@ def get_percentages_input(participants):
     """Get percentages for each participant that must sum to 100%."""
     percentages = {}
     total = 0
-    
+
     print("\nEnter percentages for each participant (must sum to 100%):")
-    
+
     for i, participant in enumerate(participants):
         while True:
             try:
                 if i == len(participants) - 1:
                     # Last participant gets the remaining percentage
                     remaining = 100 - total
-                    print(f"Remaining percentage for {participant.capitalize()}: {remaining}%")
+                    print(
+                        f"Remaining percentage for {participant.capitalize()}: {remaining}%"
+                    )
                     percentages[participant] = remaining
                     break
                 else:
-                    percent = float(input(f"Percentage for {participant.capitalize()} (%): "))
+                    percent = float(
+                        input(f"Percentage for {participant.capitalize()} (%): ")
+                    )
                     if percent < 0 or percent > 100:
                         print("❌ Percentage must be between 0 and 100.")
                         continue
@@ -278,32 +287,35 @@ def get_percentages_input(participants):
             except (KeyboardInterrupt, EOFError):
                 print("\n\n👋 Goodbye!")
                 exit(0)
-    
+
     return {"percentages": percentages}
 
 
 def get_exact_amounts_input(participants):
     """Get exact amounts for each participant."""
     exact_amounts = {}
-    
+
     print("\nEnter exact amounts for each participant:")
-    
+
     for participant in participants:
         while True:
             try:
-                amount = get_monetary_input(f"Amount for {participant.capitalize()} ({DEFAULT_CURRENCY_SYMBOL}): ")
+                amount = get_monetary_input(
+                    f"Amount for {participant.capitalize()} ({DEFAULT_CURRENCY_SYMBOL}): "
+                )
                 exact_amounts[participant] = amount
                 break
             except (KeyboardInterrupt, EOFError):
                 print("\n\n👋 Goodbye!")
                 exit(0)
-    
+
     return {"exact_amounts": exact_amounts}
 
 
 # =============================================================================
 # MAIN FUNCTIONALITY FUNCTIONS
 # =============================================================================
+
 
 def add_person_interactive(ledger):
     """Interactively add a person to the ledger."""
@@ -323,7 +335,7 @@ def add_person_interactive(ledger):
             ledger.add_person(name)
             print(f"✅ {name.capitalize()} has been added!")
             return
-            
+
         except (ValueError, TypeError) as e:
             print(f"❌ Error: {e}")
         except Exception as e:
@@ -358,7 +370,9 @@ def add_expense_interactive(ledger):
                 print("❌ Please enter a valid number.")
 
         # Get amount
-        amount = get_monetary_input(f"Enter expense amount ({DEFAULT_CURRENCY_SYMBOL}): ")
+        amount = get_monetary_input(
+            f"Enter expense amount ({DEFAULT_CURRENCY_SYMBOL}): "
+        )
 
         # Get participants
         participants = get_participants_interactive(ledger)
@@ -426,7 +440,9 @@ def show_summary(ledger):
     if ledger.expenses:
         total_expenses = sum(expense.amount for expense in ledger.expenses)
         print(f"💰 Total amount: {format_currency(total_expenses)}")
-        print(f"📈 Average expense: {format_currency(total_expenses / len(ledger.expenses))}")
+        print(
+            f"📈 Average expense: {format_currency(total_expenses / len(ledger.expenses))}"
+        )
 
         ledger.balances()  # Calculate current balances
 
@@ -435,13 +451,17 @@ def show_summary(ledger):
 
         if creditors:
             max_creditor = max(creditors, key=lambda p: p.balance)
-            print(f"🏆 Biggest creditor: {max_creditor.name.capitalize()} "
-                  f"({format_currency(max_creditor.balance)})")
+            print(
+                f"🏆 Biggest creditor: {max_creditor.name.capitalize()} "
+                f"({format_currency(max_creditor.balance)})"
+            )
 
         if debtors:
             max_debtor = min(debtors, key=lambda p: p.balance)
-            print(f"💸 Biggest debtor: {max_debtor.name.capitalize()} "
-                  f"({format_currency(abs(max_debtor.balance))})")
+            print(
+                f"💸 Biggest debtor: {max_debtor.name.capitalize()} "
+                f"({format_currency(abs(max_debtor.balance))})"
+            )
 
     input("\nPress Enter to continue...")
 
@@ -497,7 +517,7 @@ def main():
             print("\n👋 Thank you for using the Expense Splitting Calculator!")
             print("Have a great day! 💰")
             break
-        
+
         # Execute the chosen action
         if choice in menu_actions:
             menu_actions[choice](ledger)
